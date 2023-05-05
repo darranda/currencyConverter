@@ -41,38 +41,37 @@ function convert() {
   const to = targetCurrency.value;
   const amount = currencyAmount.value;
 
-  fetch(
-    `https://api.apilayer.com/exchangerates_data/convert?to=${to}&from=${from}&amount=${amount}`,
+  fetch(`https://api.apilayer.com/exchangerates_data/convert?to=${to}&from=${from}&amount=${amount}`,
     requestOptions
   )
     .then((response) => response.json())
     .then((data) => {
       const result = data.result;
-      convertedAmount.textContent = `${result.toFixed(2)} ${
+      convertedAmount.textContent = `${result.toFixed(1)} ${
         targetCurrency.value
       }`;
       console.log(result);
     })
     .catch((error) => {
       console.log("error", error);
-      alert("Oops, please enter a number greater than 1.");
+      alert("Oops, please enter a number greater than 0.");
     });
 }
 
-[baseCurrency, amountValue, targetCurrency].forEach((input) => {
+[baseCurrency, currencyAmount, targetCurrency].forEach((input) => {
   input.addEventListener("change", convert);
 });
 
-amountValue.addEventListener('input', () => {
-  const amount = amountValue.value;
+currencyAmount.addEventListener('input', () => {
+  const amount = currencyAmount.value;
   if (isNaN(amount) || amount < 0) {
-    amountValue.value = '';
+    currencyAmount.value = '';
   }
 });
 
 //handle historical 
 
-historicalButton.addEventListener("click", () => {
+historicalRates.addEventListener("click", () => {
   const baseCurrency = document.querySelector("#base-currency").value;
   const targetCurrency = document.querySelector("#target-currency").value;
   const date = "2023-02-25";
@@ -87,7 +86,7 @@ historicalButton.addEventListener("click", () => {
       let rate = 0;
       for (let currency in rates) {
         if (currency === targetCurrency) {
-          rate = rates[currency].toFixed(2);
+          rate = rates[currency].toFixed(1);
           break;
         }
       }
@@ -100,18 +99,18 @@ historicalButton.addEventListener("click", () => {
 
 saveFavButton.addEventListener("click", () => {
   const selectedPair = `${baseCurrency.value}/${targetCurrency.value}`;
-  const savedPairs = JSON.parse(localStorage.getItem("savedPairs"));
+  let savedPairs = JSON.parse(localStorage.getItem("savedPairs")) || [];
   savedPairs.push(selectedPair);
   localStorage.setItem("savedPairs", JSON.stringify(savedPairs));
 
   const favOption = document.createElement("option");
   favOption.value = selectedPair;
   favOption.text = selectedPair;
-  favPairs.appendChild(favOption);
+  currencyPairs.appendChild(favOption);
 });
 
-favPairs.addEventListener("change", () => {
-  const selectedPair = favPairs.value;
+currencyPairs.addEventListener("change", () => {
+  const selectedPair = currencyPairs.value;
   const currencies = selectedPair.split("/");
   baseCurrency.value = currencies[0];
   targetCurrency.value = currencies[1];
